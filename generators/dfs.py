@@ -1,5 +1,10 @@
+""" Maze generator module using Depth First Search
+
+"""
+
 from random import shuffle
-import numpy as np 
+import numpy as np
+
 
 class Node:
     """ Node class for graph generation
@@ -25,11 +30,11 @@ class Node:
         return self.x == other.x and self.y == other.y
 
     def print(self):
-        print("X:{} Y:{}".format(self.x,self.y))
+        print("X:{} Y:{}".format(self.x, self.y))
         print("Neighbors:")
         for elem in self.neighbors:
-            print("Xn:{},Yn:{}".format(elem.x,elem.y)) 
-    
+            print("Xn:{},Yn:{}".format(elem.x, elem.y))
+
     def removeEdge(self, node):
         for elem in self.neighbors:
             if node.compare(elem):
@@ -38,17 +43,19 @@ class Node:
                 return
         return NotImplemented
 
+
 def __createEdge(node1, node2):
     node1.neighbors.add(node2)
     node2.neighbors.add(node1)
-    
+
 
 def __delEdgeFromGraph(graph, node1, node2):
     for r in graph:
         for e in r:
             if e.compare(node1):
                 e.removeEdge(node2)
-                
+
+
 def __graph(x: int, y: int):
     """ Graph creator
 
@@ -67,22 +74,22 @@ def __graph(x: int, y: int):
     above = []
     left = None
     graph = []
-    for j in range(1,y+1,2):
+    for j in range(1, y+1, 2):
         row = []
         tmp = []
-        for i in range(1,x+1,2):
-            n = Node(i,j)
+        for i in range(1, x+1, 2):
+            n = Node(i, j)
             # save start/goal nodes
             if i == 1 and j == 1:
-                    n.start = True
+                n.start = True
             if i == x and j == y:
                 n.goal = True
             # connect to the node on the left
             if left is not None:
-                __createEdge(left,n)
+                __createEdge(left, n)
             # connect to the node above
             if j > 1:
-                __createEdge(above[(i//2)],n)
+                __createEdge(above[(i//2)], n)
             # update temp variables
             tmp.append(n)
             if i < x:
@@ -95,6 +102,7 @@ def __graph(x: int, y: int):
             row.append(n)
         graph.append(row)
     return graph
+
 
 def __rndDFS(start: Node, visited: list, wallGraph: list):
     """ Randomized Depth First Search implementation
@@ -122,7 +130,8 @@ def __rndDFS(start: Node, visited: list, wallGraph: list):
             visited.append(node)
     return visited
 
-def generateDFS(x: int,y: int):
+
+def generate(x: int, y: int):
     """ Maze generator function based on depth first search
 
     Args: 
@@ -131,39 +140,39 @@ def generateDFS(x: int,y: int):
 
     Returns:
         A 2D numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
-    
+
     """
-    graph_width = x - 2 - (1 - x%2)
-    graph_height = y - 2 - (1 - y%2)
-    travGraph = __graph(graph_width,graph_height)
-    wallGraph = __graph(graph_width,graph_height)
+    graph_width = x - 2 - (1 - x % 2)
+    graph_height = y - 2 - (1 - y % 2)
+    travGraph = __graph(graph_width, graph_height)
+    wallGraph = __graph(graph_width, graph_height)
     __rndDFS(travGraph[0][0], None, wallGraph)
     maze = []
-    maze = np.full((x,y),0)
-   
-    for i in range(2,y,2):
-        for j in range(2,x,2):
-            maze[j,i] = 1
-    
+    maze = np.full((x, y), 0)
+
+    for i in range(2, y, 2):
+        for j in range(2, x, 2):
+            maze[j, i] = 1
+
     for r in wallGraph:
         for e in r:
-            maze[e.x,e.y] = 0
+            maze[e.x, e.y] = 0
             for n in e.neighbors:
                 maze[(e.x+n.x)//2][(e.y+n.y)//2] = 1
     # fills borders and unaccessable fields
-    maze[[0,-1],:] = 1
-    maze[:,[0,-1]] = 1
-    if x%2==0:
-        maze[[0,-2],:] = 1
-    if y%2==0:
-        maze[:,[0,-2]] = 1
-    # set entrance and exit 
-    maze[0][1] = 0  
+    maze[[0, -1], :] = 1
+    maze[:, [0, -1]] = 1
+    if x % 2 == 0:
+        maze[[0, -2], :] = 1
+    if y % 2 == 0:
+        maze[:, [0, -2]] = 1
+    # set entrance and exit
+    maze[0][1] = 0
     maze[x-1][y-2] = 0
-    if x%2==0:
-        maze[x-2,y-2] = 0
-        if y%2==0:
-            maze[x-2,y-3] = 0
-    if y%2==0:
-        maze[x-2,y-2] = 0
+    if x % 2 == 0:
+        maze[x-2, y-2] = 0
+        if y % 2 == 0:
+            maze[x-2, y-3] = 0
+    if y % 2 == 0:
+        maze[x-2, y-2] = 0
     return maze
