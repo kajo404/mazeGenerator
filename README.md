@@ -15,8 +15,9 @@ pip install -r requirements.txt
 ## Usage
 
 ```python
-import mazeGen
-maze = mazeGen.generateMaze(15,15)
+import mazegen
+maze = mazeGen.generateMaze(45,45,'dfs')
+mazeGen.savePNG(maze,'path')
 ```
 
 Creates a small 15x15 maze with one entrance and on exit
