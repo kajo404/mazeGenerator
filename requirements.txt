@@ -6,6 +6,7 @@ numpy==1.17.4
 pkg-resources==0.0.0
 pylint==2.4.4
 pypng==0.0.20
+rope==0.14.0
 six==1.13.0
 typed-ast==1.4.0
 wrapt==1.11.2

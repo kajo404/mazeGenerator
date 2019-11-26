@@ -5,7 +5,8 @@ the maze area.
 
     Typical usage example:
     import mazeGen
-    maze = mazeGen.generateMaze(45,45)
+    maze = mazeGen.generateMaze(45,45,'dfs')
+    mazeGen.savePNG(maze,'path')
 
 Creates a file called path.png containing a 45 x 45 maze.
 
@@ -63,33 +64,6 @@ def __delEdgeFromGraph(graph, node1, node2):
             if e.compare(node1):
                 e.removeEdge(node2)
                 
-
-def __rndDFS(start: Node, visited: list, wallGraph: list):
-    """ Randomized Depth First Search implementation
-
-    Traverses a graph recursively from a starting node while deleting edges from a secondary graph
-    represented in array form. 
-
-    Attributes:
-        start: Starting node of the traversal graph
-        visited: List of nodes already traversed
-        wallGraph: Graph array from which edges are deleted
-    """
-
-    if start.goal:
-        return visited
-    stack = list(start.neighbors)
-    shuffle(stack)
-    if visited is None:
-        visited = []
-    visited.append(start)
-    for node in stack:
-        if node not in visited:
-            __delEdgeFromGraph(wallGraph, start, node)
-            __rndDFS(node, visited, wallGraph)
-            visited.append(node)
-    return visited
-
 def __graph(x: int, y: int):
     """ Graph creator
 
@@ -137,21 +111,41 @@ def __graph(x: int, y: int):
         graph.append(row)
     return graph
 
-def __printGraph(graph):
-    for r in graph:
-        for e in r:
-            print("{},{}".format(e.x,e.y),end=" ")
-        print()
+def __rndDFS(start: Node, visited: list, wallGraph: list):
+    """ Randomized Depth First Search implementation
 
-def generateMaze(x: int,y: int):
-    """ Maze generator function
+    Traverses a graph recursively from a starting node while deleting edges from a secondary graph
+    represented in array form. 
+
+    Attributes:
+        start: Starting node of the traversal graph
+        visited: List of nodes already traversed
+        wallGraph: Graph array from which edges are deleted
+    """
+
+    if start.goal:
+        return visited
+    stack = list(start.neighbors)
+    shuffle(stack)
+    if visited is None:
+        visited = []
+    visited.append(start)
+    for node in stack:
+        if node not in visited:
+            __delEdgeFromGraph(wallGraph, start, node)
+            __rndDFS(node, visited, wallGraph)
+            visited.append(node)
+    return visited
+
+def __generateDFS(x: int,y: int):
+    """ Maze generator function based on depth first search
 
     Args: 
         x: An integer value for the graph width
         y: An integer value for the graph height
 
     Returns:
-        A 2x2 numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
+        A 2D numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
     
     """
     graph_width = x - 2 - (1 - x%2)
@@ -168,12 +162,7 @@ def generateMaze(x: int,y: int):
     
     for r in wallGraph:
         for e in r:
-            if e.start:
-                maze[e.x,e.y] = 0
-            elif e.goal:
-                maze[e.x,e.y] = 0
-            else:
-                maze[e.x,e.y] = 0
+            maze[e.x,e.y] = 0
             for n in e.neighbors:
                 maze[(e.x+n.x)//2][(e.y+n.y)//2] = 1
     # fills borders and unaccessable fields
@@ -194,17 +183,37 @@ def generateMaze(x: int,y: int):
         maze[x-2,y-2] = 0
     return maze
 
-def generatePNG(x: int, y: int, fileName: str):
-    """ Maze generator that saves result as PNG
-    
+
+def generateMaze(x: int, y:int, strategy='dfs'):
+    """ Maze generator function
+
     Args:
         x: An integer value for the graph width
         y: An integer value for the graph height
-        fileName: String for the filename to save the maze under
+        strategy: A string containing the strategy to use for maze generation. See below for available strategies.
+    
+    Returns:
+        A 2D numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
+
+    Strategies:
+        dfs: Uses Depth First Search to generate the maze. Path from start to goal is generally quite long with few branches
     """
 
-    maze = generateMaze(x,y).astype(np.uint8)
+    if strategy == "dfs":
+        return __generateDFS(x,y)
+    else:
+        raise ValueError("Invalid strategy: " + strategy)
+
+def savePNG(maze, fileName: str):
+    """ Maze generator that saves result as PNG
+    
+    Args:
+        maze: Numpy array containing a maze.
+        fileName: String for the filename to save the maze under.
+    """
     # make pathways white and walls black
+    maze = maze.astype(np.uint8)
     maze[maze==0] = 255
     maze[maze==1] = 0
     png.from_array(maze,'L').save(fileName + ".png")
+
