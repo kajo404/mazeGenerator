@@ -150,28 +150,22 @@ def generateMaze(x: int,y: int):
         x: An integer value for the graph width
         y: An integer value for the graph height
 
-    Values must be uneven and less than 93.
-
     Returns:
         A 2x2 numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
     
     """
-    if x%2==0 or y%2==0:
-        raise ValueError
-    travGraph = __graph(x-2,y-2)
-    wallGraph = __graph(x-2,y-2)
+    graph_width = x - 2 - (1 - x%2)
+    graph_height = y - 2 - (1 - y%2)
+    travGraph = __graph(graph_width,graph_height)
+    wallGraph = __graph(graph_width,graph_height)
     __rndDFS(travGraph[0][0], None, wallGraph)
     maze = []
     maze = np.full((x,y),0)
-    # fills borders and unaccessable fields
-    maze[[0,-1],:] = 1
-    maze[:,[0,-1]] = 1
+   
     for i in range(2,y,2):
         for j in range(2,x,2):
             maze[j,i] = 1
-    # set entrance and exit 
-    maze[0][1] = 0  
-    maze[x-1][y-2] = 0
+    
     for r in wallGraph:
         for e in r:
             if e.start:
@@ -182,6 +176,22 @@ def generateMaze(x: int,y: int):
                 maze[e.x,e.y] = 0
             for n in e.neighbors:
                 maze[(e.x+n.x)//2][(e.y+n.y)//2] = 1
+    # fills borders and unaccessable fields
+    maze[[0,-1],:] = 1
+    maze[:,[0,-1]] = 1
+    if x%2==0:
+        maze[[0,-2],:] = 1
+    if y%2==0:
+        maze[:,[0,-2]] = 1
+    # set entrance and exit 
+    maze[0][1] = 0  
+    maze[x-1][y-2] = 0
+    if x%2==0:
+        maze[x-2,y-2] = 0
+        if y%2==0:
+            maze[x-2,y-3] = 0
+    if y%2==0:
+        maze[x-2,y-2] = 0
     return maze
 
 def generatePNG(x: int, y: int, fileName: str):
@@ -199,4 +209,4 @@ def generatePNG(x: int, y: int, fileName: str):
     maze[maze==1] = 0
     png.from_array(maze,'L').save(fileName + ".png")
 
-generatePNG(135,15,'example')
+generatePNG(25,20,'example')
