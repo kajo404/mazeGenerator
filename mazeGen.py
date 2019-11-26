@@ -208,5 +208,3 @@ def generatePNG(x: int, y: int, fileName: str):
     maze[maze==0] = 255
     maze[maze==1] = 0
     png.from_array(maze,'L').save(fileName + ".png")
-
-generatePNG(25,20,'example')
