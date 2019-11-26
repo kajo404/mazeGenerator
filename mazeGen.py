@@ -156,11 +156,11 @@ def generateMaze(x: int,y: int):
         A 2x2 numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
     
     """
-    travGraph = __graph(x,y)
-    wallGraph = __graph(x,y)
+    travGraph = __graph(x-2,y-2)
+    wallGraph = __graph(x-2,y-2)
     __rndDFS(travGraph[0][0], None, wallGraph)
     maze = []
-    maze = np.full((x+2,y+2),0)
+    maze = np.full((x,y),0)
     # fills borders and unaccessable fields
     maze[[0,-1],:] = 1
     maze[:,[0,-1]] = 1
@@ -169,8 +169,7 @@ def generateMaze(x: int,y: int):
             maze[j,i] = 1
     # set entrance and exit 
     maze[0][1] = 0  
-    maze[x+1][y] = 0
-    
+    maze[x-1][y-2] = 0
     for r in wallGraph:
         for e in r:
             if e.start:
