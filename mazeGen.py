@@ -108,29 +108,29 @@ def __graph(x: int, y: int):
     above = []
     left = None
     graph = []
-    for i in range(1,x+1,2):
+    for j in range(1,y+1,2):
         row = []
         tmp = []
-        for j in range(1,y+1,2):
-            n = Node(j,i)
+        for i in range(1,x+1,2):
+            n = Node(i,j)
             # save start/goal nodes
             if i == 1 and j == 1:
                     n.start = True
-            if i == y and j == x:
+            if i == x and j == y:
                 n.goal = True
             # connect to the node on the left
             if left is not None:
                 __createEdge(left,n)
             # connect to the node above
-            if i > 1:
-                __createEdge(above[(j//2)],n)
+            if j > 1:
+                __createEdge(above[(i//2)],n)
             # update temp variables
             tmp.append(n)
-            if j < x:
+            if i < x:
                 left = n
             else:
                 left = None
-            if j == x:
+            if i == x:
                 above = tmp
                 tmp = []
             row.append(n)
@@ -150,12 +150,14 @@ def generateMaze(x: int,y: int):
         x: An integer value for the graph width
         y: An integer value for the graph height
 
-    Values must be uneven.
+    Values must be uneven and less than 93.
 
     Returns:
         A 2x2 numpy array containing ones and zeros. Ones represent walls, while 0 marks a traversable field
     
     """
+    if x%2==0 or y%2==0:
+        raise ValueError
     travGraph = __graph(x-2,y-2)
     wallGraph = __graph(x-2,y-2)
     __rndDFS(travGraph[0][0], None, wallGraph)
@@ -196,3 +198,5 @@ def generatePNG(x: int, y: int, fileName: str):
     maze[maze==0] = 255
     maze[maze==1] = 0
     png.from_array(maze,'L').save(fileName + ".png")
+
+generatePNG(135,15,'example')
